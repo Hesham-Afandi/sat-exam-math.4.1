@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📐 Angles & Lines Exam</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght=400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        body.en-mode { font-family: 'Inter', sans-serif; }
+        .correct { background-color: #dcfce7 !important; border-color: #16a34a !important; }
+        .incorrect { background-color: #fee2e2 !important; border-color: #dc2626 !important; }
+        .formula { font-family: 'Times New Roman', serif; letter-spacing: 0.5px; direction: ltr; display: inline-block; font-style: italic; }
+        .timer-warning { color: #dc2626 !important; animation: pulse 1s infinite; }
+        @keyframes pulse { 50% { opacity: 0.7; } }
+        @media print { .no-print { display: none !important; } }
+        .success-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.875rem; }
+        .grade-excellent { background: #dcfce7; color: #166534; }
+        .grade-good { background: #fef3c7; color: #92400e; }
+        .grade-pass { background: #dbeafe; color: #1e40af; }
+        .grade-fail { background: #fee2e2; color: #991b1b; }
+        .lang-switch {
+            position: fixed; top: 16px; left: 16px; z-index: 100;
+            background: white; padding: 6px; border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; gap: 4px;
+            border: 2px solid #9333ea;
+        }
+        [dir="ltr"] .lang-switch { left: auto; right: 16px; }
+        .lang-btn {
+            padding: 6px 14px; border-radius: 20px; cursor: pointer; font-weight: bold;
+            transition: all 0.3s; border: none; font-size: 0.875rem;
+            background: transparent; color: #6b7280;
+        }
+        .lang-btn.active { background: #9333ea; color: white; box-shadow: 0 2px 6px rgba(147,51,234,0.4); }
+        .lang-btn:hover:not(.active) { background: #faf5ff; color: #9333ea; }
+        .shuffle-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        .svg-graph {
+            display: block;
+            margin: 12px auto;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .graph-container {
+            text-align: center;
+            margin: 10px 0;
+        }
+        .math-display {
+            display: inline-block;
+            direction: ltr;
+            font-family: 'Times New Roman', 'Cambria Math', serif;
+            font-size: 1.15em;
+            font-style: italic;
+            padding: 2px 6px;
+            background: #faf5ff;
+            border-radius: 4px;
+            margin: 2px;
+            color: #6b21a8;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 p-4 md:p-8 min-h-screen">
+
+    <div class="lang-switch no-print">
+        <button class="lang-btn active" onclick="setLanguage('ar')" id="btn-ar">عربي</button>
+        <button class="lang-btn" onclick="setLanguage('en')" id="btn-en">EN</button>
+    </div>
+
+    <div id="timer-container" class="max-w-4xl mx-auto mb-4 text-center no-print">
+        <div class="bg-white p-4 rounded-xl shadow-md inline-block border-2 border-purple-100">
+            <span class="text-gray-600 ml-2" data-ar="⏱️ الوقت المتبقي:" data-en="⏱️ Time Remaining:">⏱️ الوقت المتبقي:</span>
+            <span id="timer" class="text-2xl font-bold text-purple-600 font-mono">60:00</span>
+            <span class="shuffle-badge" data-ar="🔀 أسئلة عشوائية" data-en="🔀 Random Questions">🔀 أسئلة عشوائية</span>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto mb-6 flex flex-wrap gap-3 justify-center no-print">
+        <button onclick="toggleAnswers()" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-lg font-medium transition shadow cursor-pointer" data-ar="👁️ إظهار / إخفاء الإجابات" data-en="👁️ Show / Hide Answers">👁️ إظهار / إخفاء الإجابات</button>
+        <button onclick="window.print()" class="bg-gray-800 hover:bg-gray-900 text-white px-5 py-2 rounded-lg font-medium transition shadow cursor-pointer" data-ar="🖨️ طباعة / PDF" data-en="🖨️ Print / PDF">🖨️ طباعة / PDF</button>
+        <button onclick="reshuffleExam()" class="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white px-5 py-2 rounded-lg font-medium transition shadow cursor-pointer" data-ar="🔀 إعادة خلط الأسئلة" data-en="🔀 Reshuffle Questions">🔀 إعادة خلط الأسئلة</button>
+    </div>
+
+    <header class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-md mb-8 border-r-4 border-purple-600">
+        <div class="text-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2" data-ar="📐 امتحان الزوايا والخطوط" data-en="📐 Angles & Lines Exam">📐 امتحان الزوايا والخطوط</h1>
+            <h2 class="text-lg text-purple-600 font-semibold" data-ar="Angles & Lines" data-en="Angles & Lines">Angles & Lines</h2>
+            <p class="text-sm text-gray-600 mt-2" data-ar="أسئلة تغطي: الزوايا المتتامّة، الزوايا المتكاملة، الزوايا المتقابلة بالرأس، الخطوط المتوازية، والخطوط القاطعة" data-en="Covers: Complementary angles, Supplementary angles, Vertical angles, Parallel lines, and Transversals">أسئلة تغطي: الزوايا المتتامّة، الزوايا المتكاملة، الزوايا المتقابلة بالرأس، الخطوط المتوازية، والخطوط القاطعة</p>
+            <p class="text-xs text-orange-600 mt-2 font-semibold" data-ar="⚠️ ملاحظة: يتم خلط ترتيب الأسئلة والخيارات تلقائياً مع كل تحديث للصفحة" data-en="⚠️ Note: Questions and options are randomly shuffled on every page refresh">⚠️ ملاحظة: يتم خلط ترتيب الأسئلة والخيارات تلقائياً مع كل تحديث للصفحة</p>
+        </div>
+        <div class="mt-4 flex flex-wrap justify-center gap-4 text-sm text-gray-600">
+            <span><span data-ar="📅 التاريخ:" data-en="📅 Date:">📅 التاريخ:</span> <input type="text" class="border-b border-gray-400 bg-transparent w-28 text-center"></span>
+            <span><span data-ar="👤 الاسم:" data-en="👤 Name:">👤 الاسم:</span> <input type="text" id="studentName" class="border-b border-gray-400 bg-transparent w-32 text-center" placeholder="Enter name"></span>
+            <span><span data-ar="🏫 الشعبة:" data-en="🏫 Class:">🏫 الشعبة:</span> <input type="text" id="studentClass" class="border-b border-gray-400 bg-transparent w-28 text-center" placeholder="Class"></span>
+            <span><span data-ar="⏱️ المدة: 60 دقيقة" data-en="⏱️ Duration: 60 min">⏱️ المدة: 60 دقيقة</span></span>
+            <span><span data-ar="📊 المجموع: 100 درجة" data-en="📊 Total: 100 pts">📊 المجموع: 100 درجة</span></span>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto space-y-8" id="exam-content"></main>
+
+    <div class="text-center no-print pb-8 mt-8">
+        <button onclick="gradeExam()" class="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white text-lg px-10 py-4 rounded-xl font-bold shadow-xl transition transform hover:scale-105 cursor-pointer" data-ar="📝 تسليم وتصحيح الامتحان" data-en="📝 Submit & Grade Exam">📝 تسليم وتصحيح الامتحان</button>
+    </div>
+
+    <div id="results-panel" class="max-w-4xl mx-auto mt-8 bg-white p-8 rounded-2xl shadow-2xl border-t-4 border-purple-500 hidden no-print">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center" data-ar="📊 نتائج الامتحان" data-en="📊 Exam Results">📊 نتائج الامتحان</h2>
+        <div class="grid md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-blue-50 p-4 rounded-xl text-center"><p data-ar="اسم الطالب" data-en="Student Name">اسم الطالب</p><p id="res-name" class="font-bold text-xl text-purple-700">-</p></div>
+            <div class="bg-purple-50 p-4 rounded-xl text-center"><p data-ar="التاريخ" data-en="Date">التاريخ</p><p id="res-date" class="font-bold text-xl text-purple-700">-</p></div>
+            <div class="bg-purple-50 p-4 rounded-xl text-center"><p data-ar="المجموع" data-en="Score">المجموع</p><p id="res-total" class="font-bold text-3xl text-purple-600">0 / 100</p></div>
+        </div>
+        <div class="text-center mb-6">
+            <span id="success-badge" class="success-badge grade-excellent">-</span>
+            <p id="success-percent" class="text-4xl font-bold text-purple-600 mt-2">100%</p>
+            <p class="text-sm text-gray-500" data-ar="نسبة النجاح" data-en="Success Rate">نسبة النجاح</p>
+        </div>
+        <div class="bg-gray-50 p-6 rounded-xl mb-6">
+            <h3 class="font-bold text-lg mb-4 text-gray-800" data-ar="📈 تفصيل الأداء حسب القسم:" data-en="📈 Performance Breakdown:">📈 تفصيل الأداء حسب القسم:</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-700" data-ar="الزوايا المتتامّة" data-en="Complementary Angles">الزوايا المتتامّة</span>
+                    <span id="sec1-score" class="font-bold text-purple-600">0/4</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-700" data-ar="الزوايا المتكاملة" data-en="Supplementary Angles">الزوايا المتكاملة</span>
+                    <span id="sec2-score" class="font-bold text-purple-600">0/4</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-700" data-ar="الزوايا المتقابلة بالرأس" data-en="Vertical Angles">الزوايا المتقابلة بالرأس</span>
+                    <span id="sec3-score" class="font-bold text-purple-600">0/4</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-700" data-ar="الخطوط المتوازية والقاطع" data-en="Parallel Lines & Transversals">الخطوط المتوازية والقاطع</span>
+                    <span id="sec4-score" class="font-bold text-purple-600">0/4</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-700" data-ar="تطبيقات SAT" data-en="SAT Applications">تطبيقات SAT</span>
+                    <span id="sec5-score" class="font-bold text-purple-600">0/4</span>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mb-6">
+            <button id="sendEmailBtn" onclick="sendResultsToEmail()" class="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white text-lg px-8 py-3 rounded-xl font-bold shadow-xl transition transform hover:scale-105 cursor-pointer" data-ar="📧 إرسال النتائج للمعلم" data-en="📧 Send Results to Teacher">📧 إرسال النتائج للمعلم</button>
+            <p id="emailStatus" class="text-sm mt-2 text-center font-medium"></p>
+        </div>
+        <div class="flex gap-3 justify-center">
+            <button onclick="window.print()" class="bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold" data-ar="🖨️ طباعة النتائج" data-en="🖨️ Print Results">🖨️ طباعة النتائج</button>
+        </div>
+    </div>
+
+    <footer class="max-w-4xl mx-auto mt-10 mb-8 text-center text-gray-500 text-sm no-print">
+        © <span data-ar="Angles & Lines" data-en="Angles & Lines">Angles & Lines</span> | Mr. Mohammed Hesham
+    </footer>
+
+<script>
+// ==================== EmailJS Settings ====================
+const PUBLIC_KEY = "Rb3Lq8tXaFmc5YHUH";
+const SERVICE_ID = "service_w15m64i";
+const TEMPLATE_ID = "template_5b0u2tq";
+const TARGET_EMAIL = "mohammedhesham872@gmail.com";
+
+emailjs.init(PUBLIC_KEY);
+
+// ==================== Geometric SVG Drawings for Angles & Lines ====================
+const svgGraphs = {
+    // Complementary angles: right angle split into 35° and x
+    complementary_viz: `<svg class="svg-graph" width="280" height="210" viewBox="0 0 280 210" xmlns="http://www.w3.org/2000/svg">
+        <!-- Horizontal ray -->
+        <line x1="60" y1="150" x2="230" y2="150" stroke="#334155" stroke-width="2.5"/>
+        <!-- Vertical ray -->
+        <line x1="60" y1="150" x2="60" y2="40" stroke="#334155" stroke-width="2.5"/>
+        <!-- Right angle marker -->
+        <path d="M 60 132 L 78 132 L 78 150" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+        <!-- Splitting ray at 35° -->
+        <line x1="60" y1="150" x2="183" y2="64" stroke="#9333ea" stroke-width="2.5"/>
+        <!-- Vertex dot -->
+        <circle cx="60" cy="150" r="3" fill="#334155"/>
+        <!-- Arc for 35° -->
+        <path d="M 100 150 A 40 40 0 0 0 93 127" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+        <text x="112" y="143" font-size="14" fill="#dc2626" font-weight="bold">35°</text>
+        <!-- Arc for x -->
+        <path d="M 105 119 A 55 55 0 0 0 60 95" fill="none" stroke="#059669" stroke-width="2.5"/>
+        <text x="70" y="112" font-size="14" fill="#059669" font-weight="bold">x</text>
+        <!-- Caption -->
+        <text x="140" y="195" text-anchor="middle" font-size="12" fill="#6b21a8" font-weight="bold">زاوية قائمة = 90° ⟹ 35° + x = 90°</text>
+    </svg>`,
+    
+    // Complementary formula
+    comp_formula: `<svg class="svg-graph" width="320" height="120" viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="10" width="300" height="100" rx="8" fill="#faf5ff" stroke="#9333ea" stroke-width="2"/>
+        <text x="160" y="35" text-anchor="middle" font-size="14" fill="#7e22ce" font-weight="bold">الزوايا المتتامّة | Complementary</text>
+        <text x="160" y="68" text-anchor="middle" font-size="20" fill="#1f2937" font-family="'Times New Roman', serif" font-style="italic">A + B = 90°</text>
+        <text x="160" y="95" text-anchor="middle" font-size="12" fill="#6b7280">مجموعهما دائماً 90 درجة (زاوية قائمة)</text>
+    </svg>`,
+    
+    // Supplementary angles: straight line with 110° and x
+    supplementary_viz: `<svg class="svg-graph" width="320" height="200" viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+        <!-- Straight line -->
+        <line x1="30" y1="130" x2="290" y2="130" stroke="#334155" stroke-width="2.5"/>
+        <!-- Ray up at 70° from east (so 110° from west) -->
+        <line x1="160" y1="130" x2="198" y2="27" stroke="#9333ea" stroke-width="2.5"/>
+        <!-- Vertex dot -->
+        <circle cx="160" cy="130" r="3" fill="#334155"/>
+        <!-- Arc for 110° (left/obtuse) -->
+        <path d="M 125 130 A 35 35 0 0 1 172 97" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+        <text x="115" y="105" font-size="14" fill="#dc2626" font-weight="bold">110°</text>
+        <!-- Arc for x (right/acute) -->
+        <path d="M 177 83 A 50 50 0 0 1 210 130" fill="none" stroke="#059669" stroke-width="2.5"/>
+        <text x="200" y="112" font-size="14" fill="#059669" font-weight="bold">x</text>
+        <!-- Caption -->
+        <text x="160" y="180" text-anchor="middle" font-size="12" fill="#6b21a8" font-weight="bold">زاوية مستقيمة = 180° ⟹ 110° + x = 180°</text>
+    </svg>`,
+    
+    // Supplementary formula
+    supp_formula: `<svg class="svg-graph" width="320" height="120" viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="10" width="300" height="100" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+        <text x="160" y="35" text-anchor="middle" font-size="14" fill="#1e40af" font-weight="bold">الزوايا المتكاملة | Supplementary</text>
+        <text x="160" y="68" text-anchor="middle" font-size="20" fill="#1f2937" font-family="'Times New Roman', serif" font-style="italic">A + B = 180°</text>
+        <text x="160" y="95" text-anchor="middle" font-size="12" fill="#6b7280">مجموعهما دائماً 180 درجة (زاوية مستقيمة)</text>
+    </svg>`,
+    
+    // Three angles on a straight line
+    straight_three: `<svg class="svg-graph" width="320" height="200" viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+        <!-- Straight line -->
+        <line x1="20" y1="140" x2="300" y2="140" stroke="#334155" stroke-width="2.5"/>
+        <!-- Ray1 at 130° from east -->
+        <line x1="160" y1="140" x2="89" y2="56" stroke="#9333ea" stroke-width="2"/>
+        <!-- Ray2 at 60° from east -->
+        <line x1="160" y1="140" x2="215" y2="45" stroke="#9333ea" stroke-width="2"/>
+        <!-- Vertex dot -->
+        <circle cx="160" cy="140" r="3" fill="#334155"/>
+        <!-- Arc 50° (180 to 130) -->
+        <path d="M 130 140 A 30 30 0 0 1 141 117" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+        <text x="105" y="125" font-size="13" fill="#dc2626" font-weight="bold">50°</text>
+        <!-- Arc 70° (130 to 60) -->
+        <path d="M 131 105 A 45 45 0 0 1 183 101" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+        <text x="150" y="95" font-size="13" fill="#f59e0b" font-weight="bold">70°</text>
+        <!-- Arc x (60 to 0) -->
+        <path d="M 175 114 A 30 30 0 0 1 190 140" fill="none" stroke="#059669" stroke-width="2.5"/>
+        <text x="195" y="122" font-size="13" fill="#059669" font-weight="bold">x</text>
+        <!-- Caption -->
+        <text x="160" y="180" text-anchor="middle" font-size="12" fill="#6b21a8" font-weight="bold">50° + 70° + x = 180°</text>
+    </svg>`,
+    
+    // Vertical angles: intersecting lines
+    vertical_viz: `<svg class="svg-graph" width="300" height="220" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg">
+        <!-- Horizontal line -->
+        <line x1="40" y1="100" x2="280" y2="100" stroke="#334155" stroke-width="2.5"/>
+        <!-- Diagonal line at 50° -->
+        <line x1="83" y1="192" x2="237" y2="8" stroke="#334155" stroke-width="2.5"/>
+        <!-- Vertex dot -->
+        <circle cx="160" cy="100" r="3" fill="#334155"/>
+        <!-- Arc for 50° (top-right, between east and up-right) -->
+        <path d="M 195 100 A 35 35 0 0 0 183 73" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+        <text x="205" y="82" font-size="14" fill="#dc2626" font-weight="bold">50°</text>
+        <!-- Arc for x (bottom-left, vertical to 50°) -->
+        <path d="M 125 100 A 35 35 0 0 0 137 127" fill="none" stroke="#059669" stroke-width="2.5"/>
+        <text x="100" y="125" font-size="14" fill="#059669" font-weight="bold">x</text>
+        <!-- Caption -->
+        <text x="160" y="210" text-anchor="middle" font-size="12" fill="#6b21a8" font-weight="bold">الزوايا المتقابلة بالرأس متساوية ⟹ x = 50°</text>
+    </svg>`,
+    
+    // Vertical angles formula
+    vertical_formula: `<svg class="svg-graph" width="320" height="130" viewBox="0 0 320 130" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="10" width="300" height="110" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+        <text x="160" y="32" text-anchor="middle" font-size="14" fill="#065f46" font-weight="bold">الزوايا المتقابلة بالرأس | Vertical Angles</text>
+        <!-- Mini X -->
+        <line x1="70" y1="90" x2="130" y2="50" stroke="#334155" stroke-width="1.5"/>
+        <line x1="70" y1="50" x2="130" y2="90" stroke="#334155" stroke-width="1.5"/>
+        <text x="100" y="47" text-anchor="middle" font-size="11" fill="#dc2626" font-weight="bold">a</text>
+        <text x="100" y="100" text-anchor="middle" font-size="11" fill="#059669" font-weight="bold">a</text>
+        <text x="62" y="74" text-anchor="middle" font-size="11" fill="#f59e0b" font-weight="bold">b</text>
+        <text x="138" y="74" text-anchor="middle" font-size="11" fill="#f59e0b" font-weight="bold">b</text>
+        <text x="225" y="75" text-anchor="middle" font-size="14" fill="#065f46" font-weight="bold" font-family="'Times New Roman', serif" font-style="italic">المتقابلة متساوية</text>
+        <text x="225" y="95" text-anchor="middle" font-size="11" fill="#6b7280">a = a ، و b = b</text>
+    </svg>`,
+    
+    // Parallel lines with transversal (corresponding angles)
+    parallel_transversal: `<svg class="svg-graph" width="320" height="250" viewBox="0 0 320 250" xmlns="http://www.w3.org/2000/svg">
+        <!-- Parallel line 1 -->
+        <line x1="30" y1="70" x2="290" y2="70" stroke="#334155" stroke-width="2.5"/>
+        <!-- Parallel arrow on line 1 -->
+        <path d="M 100 66 L 110 70 L 100 74" fill="none" stroke="#9333ea" stroke-width="1.5"/>
+        <!-- Parallel line 2 -->
+        <line x1="30" y1="160" x2="290" y2="160" stroke="#334155" stroke-width="2.5"/>
+        <!-- Parallel arrow on line 2 -->
+        <path d="M 100 156 L 110 160 L 100 164" fill="none" stroke="#9333ea" stroke-width="1.5"/>
+        <!-- Transversal -->
+        <line x1="110" y1="10" x2="250" y2="220" stroke="#64748b" stroke-width="2"/>
+        <!-- Intersection dots -->
+        <circle cx="150" cy="70" r="3" fill="#334155"/>
+        <circle cx="210" cy="160" r="3" fill="#334155"/>
+        <!-- Corresponding angle arcs (top-right at each intersection) -->
+        <path d="M 175 70 A 25 25 0 0 0 136 49" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+        <text x="185" y="52" font-size="13" fill="#dc2626" font-weight="bold">65°</text>
+        <path d="M 235 160 A 25 25 0 0 0 196 139" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+        <text x="245" y="142" font-size="13" fill="#dc2626" font-weight="bold">65°</text>
+        <!-- Labels -->
+        <text x="45" y="62" font-size="12" fill="#9333ea" font-weight="bold">ℓ₁</text>
+        <text x="45" y="152" font-size="12" fill="#9333ea" font-weight="bold">ℓ₂</text>
+        <!-- Caption -->
+        <text x="160" y="240" text-anchor="middle" font-size="12" fill="#6b21a8" font-weight="bold">الزوايا المتناظرة متساوية ℓ₁ ∥ ℓ₂</text>
+    </svg>`,
+    
+    // Alternate interior angles
+    alternate_interior: `<svg class="svg-graph" width="320" height="250" viewBox="0 0 320 250" xmlns="http://www.w3.org/2000/svg">
+        <line x1="30" y1="70" x2="290" y2="70" stroke="#334155" stroke-width="2.5"/>
+        <path d="M 100 66 L 110 70 L 100 74" fill="none" stroke="#9333ea" stroke-width="1.5"/>
+        <line x1="30" y1="160" x2="290" y2="160" stroke="#334155" stroke-width="2.5"/>
+        <path d="M 100 156 L 110 160 L 100 164" fill="none" stroke="#9333ea" stroke-width="1.5"/>
+        <line x1="110" y1="10" x2="250" y2="220" stroke="#64748b" stroke-width="2"/>
+        <circle cx="150" cy="70" r="3" fill="#334155"/>
+        <circle cx="210" cy="160" r="3" fill="#334155"/>
+        <!-- Alternate interior: bottom-right at P1 and top-left at P2 -->
+        <path d="M 172 92 A 28 28 0 0 0 175 70" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+        <text x="185" y="90" font-size="13" fill="#f59e0b" font-weight="bold">a</text>
+        <path d="M 188 138 A 28 28 0 0 0 185 160" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+        <text x="165" y="145" font-size="13" fill="#f59e0b" font-weight="bold">a</text>
+        <text x="45" y="62" font-size="12" fill="#9333ea" font-weight="bold">ℓ₁</text>
+        <text x="45" y="152" font-size="12" fill="#9333ea" font-weight="bold">ℓ₂</text>
+        <text x="160" y="240" text-anchor="middle" font-size="12" fill="#6b21a8" font-weight="bold">الزوايا المتبادلة داخلياً متساوية (a = a)</text>
+    </svg>`,
+    
+    // Co-interior angles
+    co_interior: `<svg class="svg-graph" width="320" height="250" viewBox="0 0 320 250" xmlns="http://www.w3.org/2000/svg">
+        <line x1="30" y1="70" x2="290" y2="70" stroke="#334155" stroke-width="2.5"/>
+        <path d="M 100 66 L 110 70 L 100 74" fill="none" stroke="#9333ea" stroke-width="1.5"/>
+        <line x1="30" y1="160" x2="290" y2="160" stroke="#334155" stroke-width="2.5"/>
+        <path d="M 100 156 L 110 160 L 100 164" fill="none" stroke="#9333ea" stroke-width="1.5"/>
+        <line x1="110" y1="10" x2="250" y2="220" stroke="#64748b" stroke-width="2"/>
+        <circle cx="150" cy="70" r="3" fill="#334155"/>
+        <circle cx="210" cy="160" r="3" fill="#334155"/>
+        <!-- Co-interior on same side -->
+        <path d="M 128 92 A 28 28 0 0 1 125 70" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+        <text x="108" y="88" font-size="13" fill="#dc2626" font-weight="bold">p</text>
+        <path d="M 188 138 A 28 28 0 0 1 185 160" fill="none" stroke="#059669" stroke-width="2.5"/>
+        <text x="165" y="145" font-size="13" fill="#059669" font-weight="bold">q</text>
+        <text x="45" y="62" font-size="12" fill="#9333ea" font-weight="bold">ℓ₁</text>
+        <text x="45" y="152" font-size="12" fill="#9333ea" font-weight="bold">ℓ₂</text>
+        <text x="160" y="240" text-anchor="middle" font-size="12" fill="#6b21a8" font-weight="bold">المتحالفتان (نفس الجهة) مجموعهما 180° ⟹ p + q = 180°</text>
+    </svg>`,
+    
+    // Parallel line types summary
+    parallel_summary: `<svg class="svg-graph" width="340" height="160" viewBox="0 0 340 160" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="10" width="320" height="140" rx="8" fill="#faf5ff" stroke="#9333ea" stroke-width="2"/>
+        <text x="170" y="32" text-anchor="middle" font-size="14" fill="#7e22ce" font-weight="bold">زوايا الخطوط المتوازية مع قاطع</text>
+        
+        <rect x="25" y="45" width="145" height="45" rx="5" fill="#fce7f3"/>
+        <text x="97" y="63" text-anchor="middle" font-size="11" fill="#9d174d" font-weight="bold">المتناظرة (F-shape)</text>
+        <text x="97" y="80" text-anchor="middle" font-size="11" fill="#9d174d">متساوية ✓</text>
+        
+        <rect x="180" y="45" width="145" height="45" rx="5" fill="#dcfce7"/>
+        <text x="252" y="63" text-anchor="middle" font-size="11" fill="#166534" font-weight="bold">المتبادلة (Z-shape)</text>
+        <text x="252" y="80" text-anchor="middle" font-size="11" fill="#166534">متساوية ✓</text>
+        
+        <rect x="25" y="100" width="145" height="40" rx="5" fill="#fef3c7"/>
+        <text x="97" y="117" text-anchor="middle" font-size="11" fill="#92400e" font-weight="bold">المتحالفة (C-shape)</text>
+        <text x="97" y="132" text-anchor="middle" font-size="11" fill="#92400e">المجموع = 180°</text>
+        
+        <rect x="180" y="100" width="145" height="40" rx="5" fill="#e0e7ff"/>
+        <text x="252" y="117" text-anchor="middle" font-size="11" fill="#3730a3" font-weight="bold">المتقابلة بالرأس</text>
+        <text x="252" y="132" text-anchor="middle" font-size="11" fill="#3730a3">متساوية ✓</text>
+    </svg>`,
+    
+    // Perpendicular lines
+    perpendicular: `<svg class="svg-graph" width="280" height="200" viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+        <line x1="30" y1="110" x2="250" y2="110" stroke="#334155" stroke-width="2.5"/>
+        <line x1="140" y1="20" x2="140" y2="190" stroke="#334155" stroke-width="2.5"/>
+        <circle cx="140" cy="110" r="3" fill="#334155"/>
+        <!-- Four right angle markers -->
+        <path d="M 140 95 L 155 95 L 155 110" fill="none" stroke="#dc2626" stroke-width="2"/>
+        <path d="M 125 110 L 125 95 L 140 95" fill="none" stroke="#059669" stroke-width="2"/>
+        <path d="M 140 125 L 155 125 L 155 110" fill="none" stroke="#f59e0b" stroke-width="2"/>
+        <path d="M 125 110 L 125 125 L 140 125" fill="none" stroke="#2563eb" stroke-width="2"/>
+        <text x="140" y="185" text-anchor="middle" font-size="12" fill="#6b21a8" font-weight="bold">خطان متعامدان ⟹ الزوايا الأربع = 90°</text>
+    </svg>`
+};
+
+const originalExamData = {
+    sections: [
+        {
+            id: 'sec1',
+            title: { ar: '🔹 الجزء الأول: الزوايا المتتامّة', en: '🔹 Part 1: Complementary Angles' },
+            questions: [
+                {
+                    q: { ar: 'زاويتان متتامّتان، إحداهما تساوي <span class="math-display">35°</span>. ما قياس الزاوية الأخرى؟', en: 'Two angles are complementary. One is <span class="math-display">35°</span>. What is the measure of the other?' },
+                    svg: svgGraphs.complementary_viz,
+                    options: [
+                        { ar: '<span class="math-display">55°</span>', en: '<span class="math-display">55°</span>' },
+                        { ar: '<span class="math-display">65°</span>', en: '<span class="math-display">65°</span>' },
+                        { ar: '<span class="math-display">145°</span>', en: '<span class="math-display">145°</span>' },
+                        { ar: '<span class="math-display">45°</span>', en: '<span class="math-display">45°</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'الزوايا المتتامّة مجموعها 90°. الزاوية الأخرى = 90° − 35° = 55°', en: 'Complementary angles sum to 90°. The other angle = 90° − 35° = 55°' }
+                },
+                {
+                    q: { ar: 'ما تتمة الزاوية <span class="math-display">62°</span>؟', en: 'What is the complement of a <span class="math-display">62°</span> angle?' },
+                    svg: svgGraphs.comp_formula,
+                    options: [
+                        { ar: '<span class="math-display">28°</span>', en: '<span class="math-display">28°</span>' },
+                        { ar: '<span class="math-display">118°</span>', en: '<span class="math-display">118°</span>' },
+                        { ar: '<span class="math-display">38°</span>', en: '<span class="math-display">38°</span>' },
+                        { ar: '<span class="math-display">18°</span>', en: '<span class="math-display">18°</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'التتمة = 90° − 62° = 28°', en: 'Complement = 90° − 62° = 28°' }
+                },
+                {
+                    q: { ar: 'زاويتان متتامّتان قياساهما بنسبة <span class="math-display">1 : 2</span>. ما قياس الزاوية الصغرى؟', en: 'Two complementary angles are in the ratio <span class="math-display">1 : 2</span>. What is the smaller angle?' },
+                    options: [
+                        { ar: '<span class="math-display">30°</span>', en: '<span class="math-display">30°</span>' },
+                        { ar: '<span class="math-display">60°</span>', en: '<span class="math-display">60°</span>' },
+                        { ar: '<span class="math-display">45°</span>', en: '<span class="math-display">45°</span>' },
+                        { ar: '<span class="math-display">20°</span>', en: '<span class="math-display">20°</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'لتكن الزاويتان x و 2x. بما أنهما متتامّتان: x + 2x = 90 ⟹ 3x = 90 ⟹ x = 30°', en: 'Let the angles be x and 2x. Since complementary: x + 2x = 90 ⟹ 3x = 90 ⟹ x = 30°' }
+                },
+                {
+                    q: { ar: 'زاويتان متتامّتان متساويتان. ما قياس كل منهما؟', en: 'Two complementary angles are equal. What is the measure of each?' },
+                    options: [
+                        { ar: '<span class="math-display">45°</span>', en: '<span class="math-display">45°</span>' },
+                        { ar: '<span class="math-display">90°</span>', en: '<span class="math-display">90°</span>' },
+                        { ar: '<span class="math-display">30°</span>', en: '<span class="math-display">30°</span>' },
+                        { ar: '<span class="math-display">60°</span>', en: '<span class="math-display">60°</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'إذا كانتا متساويتين ومتتامّتين: x + x = 90 ⟹ 2x = 90 ⟹ x = 45°', en: 'If equal and complementary: x + x = 90 ⟹ 2x = 90 ⟹ x = 45°' }
+                }
+            ]
+        },
+        {
+            id: 'sec2',
+            title: { ar: '🔹 الجزء الثاني: الزوايا المتكاملة', en: '🔹 Part 2: Supplementary Angles' },
+            questions: [
+                {
+                    q: { ar: 'زاويتان متكاملتان، إحداهما تساوي <span class="math-display">110°</span>. ما قياس الزاوية الأخرى؟', en: 'Two angles are supplementary. One is <span class="math-display">110°</span>. What is the measure of the other?' },
+                    svg: svgGraphs.supplementary_viz,
+                    options: [
+                        { ar: '<span class="math-display">70°</span>', en: '<span class="math-display">70°</span>' },
+                        { ar: '<span class="math-display">80°</span>', en: '<span class="math-display">80°</span>' },
+                        { ar: '<span class="math-display">90°</span>', en: '<span class="math-display">90°</span>' },
+                        { ar: '<span class="math-display">60°</span>', en: '<span class="math-display">60°</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'الزوايا المتكاملة مجموعها 180°. الزاوية الأخرى = 180° − 110° = 70°', en: 'Supplementary angles sum to 180°. The other angle = 180° − 110° = 70°' }
+                },
+                {
+                    q: { ar: 'ما مكملة الزاوية <span class="math-display">45°</span>؟', en: 'What is the supplement of a <span class="math-display">45°</span> angle?' },
+                    svg: svgGraphs.supp_formula,
+                    options: [
+                        { ar: '<span class="math-display">135°</span>', en: '<span class="math-display">135°</span>' },
+                        { ar: '<span class="math-display">45°</span>', en: '<span class="math-display">45°</span>' },
+                        { ar: '<span class="math-display">145°</span>', en: '<span class="math-display">145°</span>' },
+                        { ar: '<span class="math-display">125°</span>', en: '<span class="math-display">125°</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'المكملة = 180° − 45° = 135°', en: 'Supplement = 180° − 45° = 135°' }
+                },
+                {
+                    q: { ar: 'مكملة زاوية تساوي ضعف الزاوية نفسها. ما قياس الزاوية؟', en: 'The supplement of an angle is twice the angle itself. What is the angle?' },
+                    options: [
+                        { ar: '<span class="math-display">60°</span>', en: '<span class="math-display">60°</span>' },
+                        { ar: '<span class="math-display">45°</span>', en: '<span class="math-display">45°</span>' },
+                        { ar: '<span class="math-display">90°</span>', en: '<span class="math-display">90°</span>' },
+                        { ar: '<span class="math-display">30°</span>', en: '<span class="math-display">30°</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'لتكن الزاوية x، ومكملتها 2x. إذن x + 2x = 180 ⟹ 3x = 180 ⟹ x = 60°', en: 'Let the angle be x, supplement 2x. Then x + 2x = 180 ⟹ 3x = 180 ⟹ x = 60°' }
+                },
+                {
+                    q: { ar: 'ثلاث زوايا على خط مستقيم قياساتها <span class="math-display">50°</span> و <span class="math-display">70°</span> و <span class="math-display">x</span>. ما قيمة x؟', en: 'Three angles on a straight line measure <span class="math-display">50°</span>, <span class="math-display">70°</span>, and <span class="math-display">x</span>. What is x?' },
+                    svg: svgGraphs.straight_three,
+                    options: [
+                        { ar: '<span class="math-display">60°</span>', en: '<span class="math-display">60°</span>' },
+                        { ar: '<span class="math-display">70°</span>', en: '<span class="math-display">70°</span>' },
+                        { ar: '<span class="math-display">50°</span>', en: '<span class="math-display">50°</span>' },
+                        { ar: '<span class="math-display">80°</span>', en: '<span class="math-display">80°</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'مجموع الزوايا على خط مستقيم = 180°. إذن 50 + 70 + x = 180 ⟹ x = 60°', en: 'Angles on a straight line sum to 180°. So 50 + 70 + x = 180 ⟹ x = 60°' }
+                }
+            ]
+        },
+        {
+            id: 'sec3',
+            title: { ar: '🔹 الجزء الثالث: الزوايا المتقابلة بالرأس', en: '🔹 Part 3: Vertical Angles' },
+            questions: [
+                {
+                    q: { ar: 'تقاطع خطان، فكانت إحدى الزوايا <span class="math-display">50°</span>. ما قياس الزاوية المقابلة لها بالرأس؟', en: 'Two lines intersect, and one angle is <span class="math-display">50°</span>. What is the measure of the vertical (opposite) angle?' },
+                    svg: svgGraphs.vertical_viz,
+                    options: [
+                        { ar: '<span class="math-display">50°</span>', en: '<span class="math-display">50°</span>' },
+                        { ar: '<span class="math-display">130°</span>', en: '<span class="math-display">130°</span>' },
+                        { ar: '<span class="math-display">40°</span>', en: '<span class="math-display">40°</span>' },
+                        { ar: '<span class="math-display">90°</span>', en: '<span class="math-display">90°</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'الزوايا المتقابلة بالرأس متساوية دائماً، لذا الزاوية المقابلة = 50°', en: 'Vertical angles are always equal, so the opposite angle = 50°' }
+                },
+                {
+                    q: { ar: 'تقاطع خطان، فكانت إحدى الزوايا <span class="math-display">70°</span>. ما قياس الزاوية المجاورة لها؟', en: 'Two lines intersect, and one angle is <span class="math-display">70°</span>. What is the measure of the adjacent angle?' },
+                    svg: svgGraphs.vertical_formula,
+                    options: [
+                        { ar: '<span class="math-display">110°</span>', en: '<span class="math-display">110°</span>' },
+                        { ar: '<span class="math-display">70°</span>', en: '<span class="math-display">70°</span>' },
+                        { ar: '<span class="math-display">20°</span>', en: '<span class="math-display">20°</span>' },
+                        { ar: '<span class="math-display">290°</span>', en: '<span class="math-display">290°</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'الزاويتان المتجاورتان على خط مستقيم متكاملتان: 180° − 70° = 110°', en: 'Adjacent angles on a straight line are supplementary: 180° − 70° = 110°' }
+                },
+                {
+                    q: { ar: 'زاويتان متقابلتان بالرأس قياساهما <span class="math-display">(2x + 10)°</span> و <span class="math-display">(3x − 20)°</span>. ما قيمة x؟', en: 'Two vertical angles measure <span class="math-display">(2x + 10)°</span> and <span class="math-display">(3x − 20)°</span>. What is x?' },
+                    options: [
+                        { ar: '<span class="math-display">30</span>', en: '<span class="math-display">30</span>' },
+                        { ar: '<span class="math-display">20</span>', en: '<span class="math-display">20</span>' },
+                        { ar: '<span class="math-display">40</span>', en: '<span class="math-display">40</span>' },
+                        { ar: '<span class="math-display">10</span>', en: '<span class="math-display">10</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'المتقابلتان بالرأس متساويتان: 2x + 10 = 3x − 20 ⟹ 30 = x ⟹ x = 30', en: 'Vertical angles are equal: 2x + 10 = 3x − 20 ⟹ 30 = x ⟹ x = 30' }
+                },
+                {
+                    q: { ar: 'تقاطع خطان فتكوّنت 4 زوايا. إذا كانت إحدى الزوايا قائمة (<span class="math-display">90°</span>)، فما قياس الزوايا الثلاث الأخرى؟', en: 'Two lines intersect forming 4 angles. If one angle is a right angle (<span class="math-display">90°</span>), what are the other three angles?' },
+                    svg: svgGraphs.perpendicular,
+                    options: [
+                        { ar: 'جميعها <span class="math-display">90°</span> (الخطان متعامدان)', en: 'All are <span class="math-display">90°</span> (the lines are perpendicular)' },
+                        { ar: '<span class="math-display">45°, 45°, 90°</span>', en: '<span class="math-display">45°, 45°, 90°</span>' },
+                        { ar: '<span class="math-display">60°, 60°, 60°</span>', en: '<span class="math-display">60°, 60°, 60°</span>' },
+                        { ar: 'لا يمكن تحديدها', en: 'Cannot be determined' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'إذا كانت إحدى زوايا التقاطع قائمة، فالخطان متعامدان وجميع الزوايا الأربع = 90°', en: 'If one angle of intersection is a right angle, the lines are perpendicular and all four angles = 90°' }
+                }
+            ]
+        },
+        {
+            id: 'sec4',
+            title: { ar: '🔹 الجزء الرابع: الخطوط المتوازية والقاطع', en: '🔹 Part 4: Parallel Lines & Transversals' },
+            questions: [
+                {
+                    q: { ar: 'خطان متوازيان يقطعهما قاطع. إذا كانت إحدى الزوايا <span class="math-display">65°</span>، فما قياس الزاوية المتناظرة لها؟', en: 'Two parallel lines are cut by a transversal. If one angle is <span class="math-display">65°</span>, what is the measure of the corresponding angle?' },
+                    svg: svgGraphs.parallel_transversal,
+                    options: [
+                        { ar: '<span class="math-display">65°</span>', en: '<span class="math-display">65°</span>' },
+                        { ar: '<span class="math-display">115°</span>', en: '<span class="math-display">115°</span>' },
+                        { ar: '<span class="math-display">25°</span>', en: '<span class="math-display">25°</span>' },
+                        { ar: '<span class="math-display">155°</span>', en: '<span class="math-display">155°</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'الزوايا المتناظرة (المتوافقة) متساوية عندما يكون الخطان متوازيين، لذا = 65°', en: 'Corresponding angles are equal when lines are parallel, so it = 65°' }
+                },
+                {
+                    q: { ar: 'في نفس الشكل، ما قياس الزاوية المتبادلة داخلياً لزاوية قياسها <span class="math-display">65°</span>؟', en: 'In the same figure, what is the measure of the alternate interior angle to a <span class="math-display">65°</span> angle?' },
+                    svg: svgGraphs.alternate_interior,
+                    options: [
+                        { ar: '<span class="math-display">65°</span>', en: '<span class="math-display">65°</span>' },
+                        { ar: '<span class="math-display">115°</span>', en: '<span class="math-display">115°</span>' },
+                        { ar: '<span class="math-display">125°</span>', en: '<span class="math-display">125°</span>' },
+                        { ar: '<span class="math-display">35°</span>', en: '<span class="math-display">35°</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'الزوايا المتبادلة داخلياً متساوية عندما يكون الخطان متوازيين، لذا = 65°', en: 'Alternate interior angles are equal when lines are parallel, so it = 65°' }
+                },
+                {
+                    q: { ar: 'خطان متوازيان يقطعهما قاطع. إذا كانت إحدى الزاويتين الداخليتين المتحالفتين (نفس الجهة) <span class="math-display">110°</span>، فما قياس الأخرى؟', en: 'Two parallel lines are cut by a transversal. If one co-interior angle is <span class="math-display">110°</span>, what is the other?' },
+                    svg: svgGraphs.co_interior,
+                    options: [
+                        { ar: '<span class="math-display">70°</span>', en: '<span class="math-display">70°</span>' },
+                        { ar: '<span class="math-display">110°</span>', en: '<span class="math-display">110°</span>' },
+                        { ar: '<span class="math-display">90°</span>', en: '<span class="math-display">90°</span>' },
+                        { ar: '<span class="math-display">180°</span>', en: '<span class="math-display">180°</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'الزوايا المتحالفة (الداخلية في نفس الجهة) مجموعها 180°. الأخرى = 180° − 110° = 70°', en: 'Co-interior angles (same side) sum to 180°. The other = 180° − 110° = 70°' }
+                },
+                {
+                    q: { ar: 'أي من أزواج الزوايا التالية تكون متساوية عندما يقطع قاطعٌ خطين متوازيين؟', en: 'Which of the following pairs of angles are equal when a transversal cuts two parallel lines?' },
+                    svg: svgGraphs.parallel_summary,
+                    options: [
+                        { ar: 'الزوايا المتناظرة والزوايا المتبادلة داخلياً', en: 'Corresponding angles and alternate interior angles' },
+                        { ar: 'الزوايا المتحالفة (نفس الجهة) فقط', en: 'Co-interior angles (same side) only' },
+                        { ar: 'لا توجد زوايا متساوية', en: 'No angles are equal' },
+                        { ar: 'الزوايا المتحالفة والزوايا المتجاورة فقط', en: 'Co-interior and adjacent angles only' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'المتناظرة والمتبادلة داخلياً (والمتقابلة بالرأس) متساوية، أما المتحالفة فمجموعها 180°', en: 'Corresponding, alternate interior (and vertical) angles are equal; co-interior angles sum to 180°' }
+                }
+            ]
+        },
+        {
+            id: 'sec5',
+            title: { ar: '🔹 الجزء الخامس: تطبيقات SAT', en: '🔹 Part 5: SAT Applications' },
+            questions: [
+                {
+                    q: { ar: 'خطان متوازيان يقطعهما قاطع. زاويتان متناظرتان قياساهما <span class="math-display">3x°</span> و <span class="math-display">(x + 40)°</span>. ما قيمة x؟', en: 'Two parallel lines cut by a transversal. Two corresponding angles measure <span class="math-display">3x°</span> and <span class="math-display">(x + 40)°</span>. What is x?' },
+                    options: [
+                        { ar: '<span class="math-display">20</span>', en: '<span class="math-display">20</span>' },
+                        { ar: '<span class="math-display">40</span>', en: '<span class="math-display">40</span>' },
+                        { ar: '<span class="math-display">30</span>', en: '<span class="math-display">30</span>' },
+                        { ar: '<span class="math-display">10</span>', en: '<span class="math-display">10</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'المتناظرة متساوية: 3x = x + 40 ⟹ 2x = 40 ⟹ x = 20', en: 'Corresponding angles are equal: 3x = x + 40 ⟹ 2x = 40 ⟹ x = 20' }
+                },
+                {
+                    q: { ar: 'زاويتان متتامّتان قياساهما بنسبة <span class="math-display">2 : 3</span>. ما قياس الزاوية الكبرى؟', en: 'Two complementary angles are in the ratio <span class="math-display">2 : 3</span>. What is the larger angle?' },
+                    options: [
+                        { ar: '<span class="math-display">54°</span>', en: '<span class="math-display">54°</span>' },
+                        { ar: '<span class="math-display">36°</span>', en: '<span class="math-display">36°</span>' },
+                        { ar: '<span class="math-display">60°</span>', en: '<span class="math-display">60°</span>' },
+                        { ar: '<span class="math-display">45°</span>', en: '<span class="math-display">45°</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'لتكن 2x و 3x. بما أنهما متتامّتان: 2x + 3x = 90 ⟹ 5x = 90 ⟹ x = 18. الكبرى = 3(18) = 54°', en: 'Let them be 2x and 3x. Complementary: 2x + 3x = 90 ⟹ 5x = 90 ⟹ x = 18. Larger = 3(18) = 54°' }
+                },
+                {
+                    q: { ar: 'خطان متوازيان يقطعهما قاطع. إذا كانت زاوية قياسها <span class="math-display">48°</span>، فما قياس الزاوية التي تكمل زاويتها المتناظرة؟', en: 'Two parallel lines cut by a transversal. If an angle is <span class="math-display">48°</span>, what is the angle supplementary to its corresponding angle?' },
+                    options: [
+                        { ar: '<span class="math-display">132°</span>', en: '<span class="math-display">132°</span>' },
+                        { ar: '<span class="math-display">48°</span>', en: '<span class="math-display">48°</span>' },
+                        { ar: '<span class="math-display">42°</span>', en: '<span class="math-display">42°</span>' },
+                        { ar: '<span class="math-display">180°</span>', en: '<span class="math-display">180°</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'الزاوية المتناظرة = 48°. الزاوية المكملة لها = 180° − 48° = 132°', en: 'The corresponding angle = 48°. The angle supplementary to it = 180° − 48° = 132°' }
+                },
+                {
+                    q: { ar: 'خطان متوازيان ℓ₁ و ℓ₂ يقطعهما قاطع. الزاوية 1 متناظرة للزاوية 2، والزاوية 2 تكمل الزاوية 3. إذا كانت الزاوية 1 = <span class="math-display">75°</span>، فما قياس الزاوية 3؟', en: 'Parallel lines ℓ₁ and ℓ₂ cut by a transversal. Angle 1 corresponds to angle 2, and angle 2 is supplementary to angle 3. If angle 1 = <span class="math-display">75°</span>, what is angle 3?' },
+                    options: [
+                        { ar: '<span class="math-display">105°</span>', en: '<span class="math-display">105°</span>' },
+                        { ar: '<span class="math-display">75°</span>', en: '<span class="math-display">75°</span>' },
+                        { ar: '<span class="math-display">15°</span>', en: '<span class="math-display">15°</span>' },
+                        { ar: '<span class="math-display">95°</span>', en: '<span class="math-display">95°</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'الزاوية 2 = الزاوية 1 = 75° (متناظرتان). الزاوية 3 تكمل الزاوية 2: 180° − 75° = 105°', en: 'Angle 2 = Angle 1 = 75° (corresponding). Angle 3 is supplementary to angle 2: 180° − 75° = 105°' }
+                }
+            ]
+        }
+    ]
+};
+
+function shuffleArray(array) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+let examData;
+let correctAnswersMap = {};
+let currentLang = 'ar';
+let timeRemaining = 3600;
+let timerInterval;
+
+function prepareShuffledExam() {
+    examData = JSON.parse(JSON.stringify(originalExamData));
+    correctAnswersMap = {};
+    let globalIdx = 0;
+    
+    examData.sections.forEach((section) => {
+        section.questions = shuffleArray(section.questions);
+        
+        section.questions.forEach((q) => {
+            const optionsWithCorrect = q.options.map((opt, idx) => ({
+                option: opt,
+                isCorrect: idx === q.correct
+            }));
+            
+            const shuffledOptions = shuffleArray(optionsWithCorrect);
+            q.options = shuffledOptions.map(o => o.option);
+            
+            const newCorrectIndex = shuffledOptions.findIndex(o => o.isCorrect);
+            q.correct = newCorrectIndex;
+            
+            correctAnswersMap[globalIdx] = String.fromCharCode(97 + newCorrectIndex);
+            globalIdx++;
+        });
+    });
+    
+    console.log('✅ تم خلط الأسئلة والخيارات بنجاح');
+}
+
+function reshuffleExam() {
+    prepareShuffledExam();
+    renderExam();
+    document.querySelectorAll('input[type="radio"]:checked').forEach(r => r.checked = false);
+    document.getElementById('results-panel').classList.add('hidden');
+    document.querySelectorAll('.correct, .incorrect').forEach(el => {
+        el.classList.remove('correct', 'incorrect');
+    });
+    alert(currentLang === 'ar' 
+        ? '🔀 تم إعادة خلط الأسئلة والخيارات بنجاح!' 
+        : '🔀 Questions and options have been reshuffled successfully!');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setLanguage(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    
+    document.getElementById('btn-ar').classList.toggle('active', lang === 'ar');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    
+    document.body.classList.toggle('en-mode', lang === 'en');
+    
+    document.querySelectorAll('[data-ar][data-en]').forEach(el => {
+        const arContent = el.getAttribute('data-ar');
+        const enContent = el.getAttribute('data-en');
+        if (arContent && enContent) {
+            el.innerHTML = lang === 'ar' ? arContent : enContent;
+        }
+    });
+    
+    renderExam();
+}
+
+function renderExam() {
+    const container = document.getElementById('exam-content');
+    const labels = {
+        ar: { option: ['أ', 'ب', 'ج', 'د'], answer: '✅ الإجابة:' },
+        en: { option: ['A', 'B', 'C', 'D'], answer: '✅ Answer:' }
+    };
+    const lbl = labels[currentLang];
+    const isRTL = currentLang === 'ar';
+    
+    let html = '';
+    let globalIdx = 0;
+    
+    examData.sections.forEach((section) => {
+        html += `
+        <section class="bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-xl font-bold mb-4 text-purple-700">${section.title[currentLang]}</h2>
+            <ol class="space-y-4 text-sm">`;
+            
+        section.questions.forEach((q) => {
+            const borderSide = isRTL ? 'border-r-4 pr-4' : 'border-l-4 pl-4';
+            html += `
+                <li class="${borderSide} border-purple-500 py-2" id="q-${globalIdx}">
+                    <strong>${globalIdx + 1}.</strong> ${q.q[currentLang]}<br>`;
+            
+            if (q.svg) {
+                html += `<div class="graph-container">${q.svg}</div>`;
+            }
+                    
+            q.options.forEach((opt, oIdx) => {
+                const radioSide = isRTL ? 'mr-4 ml-2' : 'ml-4 mr-2';
+                html += `
+                    <label class="cursor-pointer block mt-1 ${isRTL ? 'mr-4' : 'ml-4'}">
+                        <input type="radio" name="q${globalIdx}" value="${String.fromCharCode(97 + oIdx)}" class="${radioSide}"> 
+                        ${lbl.option[oIdx]}) ${opt[currentLang]}
+                    </label>`;
+            });
+            
+            html += `
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden">
+                        ${lbl.answer} ${lbl.option[q.correct]}) ${q.options[q.correct][currentLang]} — ${q.answer[currentLang]}
+                    </div>
+                </li>`;
+            globalIdx++;
+        });
+        
+        html += `
+            </ol>
+        </section>`;
+    });
+    
+    container.innerHTML = html;
+}
+
+function startTimer() {
+    document.getElementById('timer-container').style.display = 'block';
+    timerInterval = setInterval(() => {
+        timeRemaining--;
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        const timerEl = document.getElementById('timer');
+        timerEl.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+        if (timeRemaining <= 300) timerEl.classList.add('timer-warning');
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            alert(currentLang === 'ar' ? "انتهى الوقت! سيتم تسليم الامتحان تلقائياً." : "Time's up! Exam will be submitted automatically.");
+            gradeExam();
+        }
+    }, 1000);
+}
+
+function toggleAnswers() {
+    document.querySelectorAll('.answer-box').forEach(el => el.classList.toggle('hidden'));
+}
+
+function gradeExam() {
+    let correctCount = 0;
+    let sec1 = 0, sec2 = 0, sec3 = 0, sec4 = 0, sec5 = 0;
+    
+    for (let i = 0; i < 20; i++) {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        const li = document.getElementById(`q-${i}`);
+        const correctAnswer = correctAnswersMap[i];
+        
+        if (li) {
+            const isCorrect = selected && selected.value === correctAnswer;
+            
+            if (isCorrect) {
+                correctCount++;
+                li.classList.add('correct');
+                li.classList.remove('incorrect');
+                
+                if (i < 4) sec1++;
+                else if (i < 8) sec2++;
+                else if (i < 12) sec3++;
+                else if (i < 16) sec4++;
+                else sec5++;
+            } else {
+                li.classList.add('incorrect');
+                li.classList.remove('correct');
+            }
+        }
+    }
+
+    const score = (correctCount / 20) * 100;
+    const successRate = Math.round(score);
+    
+    document.getElementById('res-total').textContent = `${Math.round(score)} / 100`;
+    document.getElementById('res-name').textContent = document.getElementById('studentName').value || (currentLang === 'ar' ? 'طالب' : 'Student');
+    document.getElementById('res-date').textContent = new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-AE' : 'en-US');
+    
+    document.getElementById('sec1-score').textContent = `${sec1}/4`;
+    document.getElementById('sec2-score').textContent = `${sec2}/4`;
+    document.getElementById('sec3-score').textContent = `${sec3}/4`;
+    document.getElementById('sec4-score').textContent = `${sec4}/4`;
+    document.getElementById('sec5-score').textContent = `${sec5}/4`;
+    
+    const badge = document.getElementById('success-badge');
+    const percent = document.getElementById('success-percent');
+    percent.textContent = `${successRate}%`;
+    
+    if (currentLang === 'ar') {
+        if (successRate >= 90) { badge.textContent = 'ممتاز'; badge.className = 'success-badge grade-excellent'; }
+        else if (successRate >= 75) { badge.textContent = 'جيد جداً'; badge.className = 'success-badge grade-good'; }
+        else if (successRate >= 50) { badge.textContent = 'جيد'; badge.className = 'success-badge grade-pass'; }
+        else { badge.textContent = 'يحتاج تحسين'; badge.className = 'success-badge grade-fail'; }
+    } else {
+        if (successRate >= 90) { badge.textContent = 'Excellent'; badge.className = 'success-badge grade-excellent'; }
+        else if (successRate >= 75) { badge.textContent = 'Very Good'; badge.className = 'success-badge grade-good'; }
+        else if (successRate >= 50) { badge.textContent = 'Good'; badge.className = 'success-badge grade-pass'; }
+        else { badge.textContent = 'Needs Improvement'; badge.className = 'success-badge grade-fail'; }
+    }
+    
+    document.getElementById('results-panel').classList.remove('hidden');
+    document.getElementById('results-panel').scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('sendEmailBtn').classList.remove('hidden');
+}
+
+function sendResultsToEmail() {
+    const btn = document.getElementById('sendEmailBtn');
+    const status = document.getElementById('emailStatus');
+    btn.disabled = true;
+    btn.textContent = currentLang === 'ar' ? '⏳ جاري الإرسال...' : '📤 Sending...';
+
+    const name = document.getElementById('studentName').value || 'N/A';
+    const studentClass = document.getElementById('studentClass').value || 'N/A';
+    const date = document.querySelector('input[type="text"]').value || new Date().toLocaleDateString();
+    const score = document.getElementById('res-total').textContent;
+    const successRate = document.getElementById('success-percent').textContent;
+    const badge = document.getElementById('success-badge').textContent;
+
+    const sectionNames = {
+        ar: ['الزوايا المتتامّة', 'الزوايا المتكاملة', 'الزوايا المتقابلة بالرأس', 'الخطوط المتوازية والقاطع', 'تطبيقات SAT'],
+        en: ['Complementary Angles', 'Supplementary Angles', 'Vertical Angles', 'Parallel Lines & Transversals', 'SAT Applications']
+    };
+    const currentSectionNames = sectionNames[currentLang];
+
+    let answersHTML = `
+        <div style="font-family: 'Segoe UI', Tahoma, Arial, sans-serif; direction: ${currentLang === 'ar' ? 'rtl' : 'ltr'};">
+            <div style="background: linear-gradient(135deg, #9333ea, #7c3aed); color: white; padding: 20px; border-radius: 10px 10px 0 0; text-align: center;">
+                <h2 style="margin: 0; font-size: 22px;">📐 ${currentLang === 'ar' ? 'نتيجة امتحان الزوايا والخطوط' : 'Angles & Lines Exam Result'}</h2>
+                <p style="margin: 5px 0 0 0; opacity: 0.9;">${currentLang === 'ar' ? 'Angles & Lines' : 'Angles & Lines'}</p>
+                <p style="margin: 5px 0 0 0; font-size: 12px; opacity: 0.8;">🔀 ${currentLang === 'ar' ? 'تم خلط الأسئلة تلقائياً' : 'Questions were randomly shuffled'}</p>
+            </div>
+            
+            <div style="background: #faf5ff; padding: 15px; border: 1px solid #e9d5ff;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 8px; font-weight: bold; color: #6b21a8;">${currentLang === 'ar' ? '👤 الاسم:' : '👤 Name:'}</td>
+                        <td style="padding: 8px;">${name}</td>
+                        <td style="padding: 8px; font-weight: bold; color: #6b21a8;">${currentLang === 'ar' ? '🏫 الشعبة:' : '🏫 Class:'}</td>
+                        <td style="padding: 8px;">${studentClass}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; font-weight: bold; color: #6b21a8;">${currentLang === 'ar' ? '📅 التاريخ:' : '📅 Date:'}</td>
+                        <td style="padding: 8px;">${date}</td>
+                        <td style="padding: 8px; font-weight: bold; color: #6b21a8;">${currentLang === 'ar' ? '🏆 التقدير:' : '🏆 Grade:'}</td>
+                        <td style="padding: 8px;">${badge}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div style="background: white; padding: 20px; text-align: center; border-bottom: 2px solid #e5e7eb;">
+                <div style="display: inline-block; margin: 0 15px;">
+                    <div style="font-size: 32px; font-weight: bold; color: #9333ea;">${score}</div>
+                    <div style="color: #6b7280; font-size: 13px;">${currentLang === 'ar' ? 'الدرجة الكلية' : 'Total Score'}</div>
+                </div>
+                <div style="display: inline-block; margin: 0 15px;">
+                    <div style="font-size: 32px; font-weight: bold; color: #059669;">${successRate}%</div>
+                    <div style="color: #6b7280; font-size: 13px;">${currentLang === 'ar' ? 'نسبة النجاح' : 'Success Rate'}</div>
+                </div>
+            </div>
+
+            <h3 style="background: #f3f4f6; padding: 12px; margin: 0; color: #1f2937; border-bottom: 2px solid #d1d5db;">
+                📝 ${currentLang === 'ar' ? 'تفاصيل الإجابات' : 'Answer Details'}
+            </h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                    <tr style="background: #9333ea; color: white;">
+                        <th style="padding: 10px; border: 1px solid #7e22ce; width: 8%;">#</th>
+                        <th style="padding: 10px; border: 1px solid #7e22ce; width: 32%;">${currentLang === 'ar' ? 'القسم' : 'Section'}</th>
+                        <th style="padding: 10px; border: 1px solid #7e22ce; width: 15%;">${currentLang === 'ar' ? 'الإجابة' : 'Answer'}</th>
+                        <th style="padding: 10px; border: 1px solid #7e22ce; width: 15%;">${currentLang === 'ar' ? 'الصحيحة' : 'Correct'}</th>
+                        <th style="padding: 10px; border: 1px solid #7e22ce; width: 15%;">${currentLang === 'ar' ? 'النتيجة' : 'Status'}</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    let sectionScores = [0, 0, 0, 0, 0];
+    let sectionTotals = [4, 4, 4, 4, 4];
+
+    for (let i = 0; i < 20; i++) {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        const selectedValue = selected ? selected.value : '-';
+        const correctValue = correctAnswersMap[i];
+        const isCorrect = selectedValue === correctValue;
+        
+        const sectionIndex = Math.floor(i / 4);
+        if (isCorrect) sectionScores[sectionIndex]++;
+
+        const rowBg = i % 2 === 0 ? '#f9fafb' : '#ffffff';
+        const statusBg = isCorrect ? '#dcfce7' : '#fee2e2';
+        const statusColor = isCorrect ? '#166534' : '#991b1b';
+        const statusIcon = isCorrect ? '✅' : '❌';
+        const statusText = isCorrect 
+            ? (currentLang === 'ar' ? 'صحيح' : 'Correct') 
+            : (currentLang === 'ar' ? 'خطأ' : 'Wrong');
+
+        answersHTML += `
+            <tr style="background: ${rowBg};">
+                <td style="padding: 8px; border: 1px solid #e5e7eb; text-align: center; font-weight: bold;">${i + 1}</td>
+                <td style="padding: 8px; border: 1px solid #e5e7eb;">${currentSectionNames[sectionIndex]}</td>
+                <td style="padding: 8px; border: 1px solid #e5e7eb; text-align: center; font-weight: bold;">${selectedValue.toUpperCase()}</td>
+                <td style="padding: 8px; border: 1px solid #e5e7eb; text-align: center; font-weight: bold; color: #059669;">${correctValue.toUpperCase()}</td>
+                <td style="padding: 8px; border: 1px solid #e5e7eb; text-align: center; background: ${statusBg}; color: ${statusColor}; font-weight: bold;">
+                    ${statusIcon} ${statusText}
+                </td>
+            </tr>
+        `;
+    }
+
+    answersHTML += `
+                </tbody>
+            </table>
+
+            <h3 style="background: #f3f4f6; padding: 12px; margin: 0; color: #1f2937; border-bottom: 2px solid #d1d5db; border-top: 3px solid #9333ea;">
+                📊 ${currentLang === 'ar' ? 'تفصيل الأداء' : 'Performance Breakdown'}
+            </h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                    <tr style="background: #7c3aed; color: white;">
+                        <th style="padding: 10px; border: 1px solid #6d28d9;">${currentLang === 'ar' ? 'القسم' : 'Section'}</th>
+                        <th style="padding: 10px; border: 1px solid #6d28d9; width: 20%;">${currentLang === 'ar' ? 'النتيجة' : 'Score'}</th>
+                        <th style="padding: 10px; border: 1px solid #6d28d9; width: 20%;">${currentLang === 'ar' ? 'النسبة' : 'Percentage'}</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    for (let i = 0; i < 5; i++) {
+        const percentage = Math.round((sectionScores[i] / sectionTotals[i]) * 100);
+        const barColor = percentage >= 75 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+        const rowBg = i % 2 === 0 ? '#f9fafb' : '#ffffff';
+        
+        answersHTML += `
+            <tr style="background: ${rowBg};">
+                <td style="padding: 10px; border: 1px solid #e5e7eb; font-weight: 600;">${currentSectionNames[i]}</td>
+                <td style="padding: 10px; border: 1px solid #e5e7eb; text-align: center; font-weight: bold; color: #9333ea;">
+                    ${sectionScores[i]} / ${sectionTotals[i]}
+                </td>
+                <td style="padding: 10px; border: 1px solid #e5e7eb;">
+                    <div style="background: #e5e7eb; border-radius: 10px; overflow: hidden; height: 20px; position: relative;">
+                        <div style="background: ${barColor}; width: ${percentage}%; height: 100%;"></div>
+                        <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 11px; font-weight: bold; color: #1f2937;">
+                            ${percentage}%
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
+    answersHTML += `
+                </tbody>
+            </table>
+
+            <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); padding: 15px; border-radius: 0 0 10px 10px; border-top: 2px solid #f59e0b;">
+                <p style="margin: 0; color: #78350f; text-align: center; font-size: 13px;">
+                    💡 <strong>${currentLang === 'ar' ? 'ملاحظة:' : 'Note:'}</strong> 
+                    ${currentLang === 'ar' 
+                        ? 'تم إرسال هذا التقرير تلقائياً من منصة 4U التعليمية | Mr. Mohammed Hesham' 
+                        : 'This report was automatically sent from 4U Educational Platform | Mr. Mohammed Hesham'}
+                </p>
+            </div>
+        </div>
+    `;
+
+    const templateParams = {
+        to_email: TARGET_EMAIL,
+        student_name: name,
+        student_class: studentClass,
+        exam_date: date,
+        total_score: score,
+        success_rate: successRate,
+        grade: badge,
+        answers_table: answersHTML
+    };
+
+    emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
+        .then(() => {
+            status.textContent = currentLang === 'ar' 
+                ? '✅ تم إرسال النتائج بنجاح!' 
+                : '✅ Results sent successfully!';
+            status.style.color = '#059669';
+            btn.textContent = currentLang === 'ar' ? '✓ تم الإرسال' : '✓ Sent';
+        })
+        .catch(err => {
+            status.textContent = currentLang === 'ar' 
+                ? '❌ فشل الإرسال، حاول مرة أخرى' 
+                : '❌ Failed to send, try again';
+            status.style.color = '#dc2626';
+            btn.disabled = false;
+            btn.textContent = currentLang === 'ar' ? '📧 إعادة المحاولة' : '📧 Retry Send';
+            console.error('EmailJS Error:', err);
+        });
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    prepareShuffledExam();
+    renderExam();
+    startTimer();
+    console.log('🔀 تم خلط الأسئلة والخيارات عشوائياً!');
+});
+</script>
+</body>
+</html>
